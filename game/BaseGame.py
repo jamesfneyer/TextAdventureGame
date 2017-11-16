@@ -12,6 +12,7 @@ main_room_items = {"shank": "A crude shank created out of nearby items. There's 
                    "door": "The door to the room. It looks locked",
                    "hay": "A pile of hay. Looks like there's something underneath?"}
 actions = ["inspect", "get", "use","see inventory","look at surroundings","move"]
+north_wing_exits = ["main room", "west wing", "east wing", "north wing cell 1", "north wing cell 2"]
 room_A_items = {
     "broken down bed":"This bed has been broken heavily down. The frame still looks sturdy however.",
     "bloodied man":"A man lies down on the ground. His throat has been slit with a shank.",
@@ -61,18 +62,26 @@ room_Exit_items = {
 }
 north_wing_items = {
     "door to north wing cell 1" : "The door to cell 1 of the north wing.",
-    "door to north wing cell 2" : "The door to cell 2 of the north wing."
+    "door to north wing cell 2" : "The door to cell 2 of the north wing.",
+    "west wing": "The west wing of the cell block.",
+    "east wing": "The east wing of the cell block."
 }
 west_wing_items = {
     "door to west wing cell 1" : "The door to cell 1 of the west wing.",
-    "door to west wing cell 2" : "The door to cell 2 of the west wing."
+    "door to west wing cell 2" : "The door to cell 2 of the west wing.",
+    "north wing": "The north wing of the cell block.",
+    "south wing": "The south wing of the cell block."
 }
 east_wing_items = {
     "door to east wing cell 1" : "The door to cell 1 of the east wing.",
-    "door to east wing cell 2" : "The door to cell 2 of the east wing."
+    "door to east wing cell 2" : "The door to cell 2 of the east wing.",
+    "north wing": "The north wing of the cell block.",
+    "south wing": "The south wing of the cell block."
 }
 south_wing_items = {
-    "door to exit":"The door to the exit of the jail."
+    "door to exit":"The door to the exit of the jail.",
+    "west wing": "The west wing of the cell block.",
+    "east wing": "The east wing of the cell block."
 }
 location = "main room"
 door_barred = True
@@ -89,6 +98,7 @@ north_wing = Rooms(name = "north wing", items = north_wing_items, actions = acti
 east_wing = Rooms(name = "east wing", items = east_wing_items, actions = actions, locked = False)
 west_wing = Rooms(name = "west wing", items = east_wing_items, actions = actions, locked = False)
 south_wing = Rooms(name = "south wing", items = east_wing_items, actions = actions, locked = False)
+
 
 def get_location():
     global location
@@ -120,12 +130,13 @@ def get_location():
 
 def get_valid_item():
     isvalid = False
-    items = Inventory.get_inventory()
     location_items = get_location_items()
     while not isvalid:
-        command = input("What item would you like to use?")
-        if command.lower not in items and command.lower() not in location_items:
-            print("That is not something you can use.")
+        command = input("What item would you like to use? ")
+        if command.lower() == "back":
+            return "back"
+        elif command.lower() not in location_items and command.lower() not in Inventory.inventory_items:
+            print("That is not something you can use. Enter back to go back.")
         else:
             isvalid = True
             return command.lower()
@@ -134,7 +145,7 @@ def get_valid_item():
 def get_valid_command():
     isvalid = False
     while not isvalid:
-        command = input("What would you like to do? (Inspect/Get/Use/See Inventory/Look at surroundings/Move)")
+        command = input("What would you like to do? (Inspect/Get/Use/See Inventory/Look at surroundings) ")
         if command.lower() not in actions:
             print("That's not a valid command!")
         else:
@@ -143,7 +154,7 @@ def get_valid_command():
 
 
 def get_location_items():
-    global location
+    location =  LockedDoors.location
     if location == "north wing cell 1":
         return room_A_items
     elif location == "north wing cell 2":
@@ -174,10 +185,14 @@ def inspect_item():
     isvalid = False
     items = get_location_items()
     while not isvalid:
-        choice = input("What would you like to inspect?")
+        choice = input("What would you like to inspect? ")
         if choice.lower() in items:
             isvalid = True
             print(items[choice.lower()])
+        elif choice.lower() == "back":
+            isvalid = True
+        else:
+            print("Invalid item to inspect. Enter back to go back.")
 
 
 def look_at_surroundings():
@@ -185,14 +200,14 @@ def look_at_surroundings():
         print(x)
 
 
-def get_valid_move():
+"""def get_valid_move():
     global location
     isvalid = False
     while not isvalid:
-        command = input("What room would you like to move to?")
+        command = input("What room would you like to move to? ")
         if command.lower() in valid_locations:
             if command.lower == "north wing":
-                if location != ("main room" or "west wing" or "east wing" or "north wing cell 1" or "north wing cell 2"):
+                if location not in north_wing_exits:
                     print("Error! Cannot move to that location from here.")
                 elif location == "main room" and "Main Room" in LockedDoors.unlocked_doors:
                     location = "north wing"
@@ -277,20 +292,28 @@ def get_valid_move():
                     location = "north wing cell 2"
                     isvalid = True
                     print("You move to the north wing cell 2.")
+        elif command.lower() == "back":
+            return "back"
+        else:
+            print("Invalid location to move to. Enter back to go back.")"""
 
 
 def get_valid_object():
     isvalid = False
     area_items = get_location_items()
     while not isvalid:
-        command = input("What would you like to get?")
+        command = input("What would you like to get? ")
         if command.lower() not in get_location_items():
-            print("That is not an object in your immediate area.")
+            print("That is not an object in your immediate area. Type back to go back.")
+        elif command.lower() == "back":
+            isvalid = True
+            return command.lower()
         else:
+            isvalid = True
             return command.lower()
 
 
-print("You wake up in a cell.")
+print("You wake up in a cell, handcuffed to the wall.")
 while not game_over:
     choice = get_valid_command()
     if choice == "see inventory":
@@ -304,11 +327,13 @@ while not game_over:
     elif choice == "use":
         item = get_valid_item()
         room = get_location()
-        Rooms.main_room_action(room = room, action = choice, item = item)
+        if item != "back":
+            Rooms.main_room_action(room = room, action = choice, item = item)
     elif choice == "get":
         item = get_valid_object()
         room = get_location()
-        Rooms.main_room_action(room = room, action = choice, item = item)
+        if item != "back":
+            Rooms.main_room_action(room = room, action = choice, item = item)
     elif choice == "move":
         move = get_valid_move()
 
