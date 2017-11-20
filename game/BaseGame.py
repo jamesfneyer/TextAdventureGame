@@ -30,7 +30,7 @@ room_C_items = {
     "mirror" : "A shattered mirror lays hanging in the corner.",
     "man":"A man is shoved with his head down the toilet, obviously dead. For some reason, you know he deserved it.",
     "sink":"A sink stands in the corner. It still seems to be functional.",
-    "boor": "The door to the hallway is wide-open."
+    "door": "The door to the hallway is wide-open."
 }
 room_D_items = {
     "bed" : "A bed lies in the corner. It is rotten, with no possible use remaining.",
@@ -40,19 +40,18 @@ room_D_items = {
     "door": "The door to the hallway is wide-open."
 }
 room_E_items = {
-    "Bed" : "A bed lies in the corner. For some reason you know just how comfortable it is.",
-    "mirror" : "A functioning mirror",
+    "bed" : "A bed lies in the corner. For some reason you know just how comfortable it is.",
+    "mirror" : "A shattered mirror. Looks like someone punched it.",
     "toilet": "A used toilet. Foul smells emanate from it.",
-    "man":"A man hangs from the ceiling. He must have killed himself. Too convenient of a death for him.",
     "poster": "A pin-up poster hangs on the wall.",
-    "Door": "The door to the hallway is wide-open."
+    "door": "The door to the hallway is wide-open."
 }
 room_F_items = {
     "bed" : "A bed lies in the corner. A man lies on it, his life choked out of him by a pillow.",
     "pillow":"A pillow lies on top of the dead man, ensuring he made no sound as he died.",
-    "mirror" : "A functioning mirror",
+    "mirror" : "Another shattered mirror. Odd.",
     "toilet": "A used toilet. Foul smells emanate from it.",
-    "man":"A man hangs from the ceiling. He must have killed himself. Too convenient of a death for him.",
+    "man":"A man lies on the bed. The murder weapon, a pillow, still lays on top of him.",
     "door": "The door to the hallway is wide-open."
 }
 room_Exit_items = {
@@ -87,13 +86,13 @@ location = "main room"
 door_barred = True
 game_over = False
 main_room = Rooms(name = "Main Room", items = main_room_items, actions = actions, locked = True)
-room_A = Rooms(name = "A", items = room_A_items, actions = actions, locked = True)
-room_B = Rooms(name = "B", items = room_B_items, actions = actions, locked = True)
+room_A = Rooms(name = "A", items = room_A_items, actions = actions, locked = False)
+room_B = Rooms(name = "B", items = room_B_items, actions = actions, locked = False)
 room_C = Rooms(name = "C", items = room_C_items, actions = actions, locked = False)
-room_D = Rooms(name = "D", items = room_D_items, actions = actions, locked = True)
+room_D = Rooms(name = "D", items = room_D_items, actions = actions, locked = False)
 room_E = Rooms(name = "E", items = room_E_items, actions = actions, locked = False)
-room_F = Rooms(name = "F", items = room_F_items, actions = actions, locked = True)
-room_Exit = Rooms(name = "D", items = room_Exit_items, actions = actions, locked = True)
+room_F = Rooms(name = "F", items = room_F_items, actions = actions, locked = False)
+room_Exit = Rooms(name = "exit", items = room_Exit_items, actions = actions, locked = False)
 north_wing = Rooms(name = "north wing", items = north_wing_items, actions = actions, locked = False)
 east_wing = Rooms(name = "east wing", items = east_wing_items, actions = actions, locked = False)
 west_wing = Rooms(name = "west wing", items = east_wing_items, actions = actions, locked = False)
@@ -101,18 +100,18 @@ south_wing = Rooms(name = "south wing", items = east_wing_items, actions = actio
 
 
 def get_location():
-    global location
-    if location == "north wing cell 1":
+    location = LockedDoors.location
+    if location == "A":
         return room_A
-    elif location == "north wing cell 2":
+    elif location == "B":
         return room_B
-    elif location == "east wing cell 1":
+    elif location == "C":
         return room_C
-    elif location == "east wing cell 2":
+    elif location == "D":
         return room_D
-    elif location == "west wing cell 2":
+    elif location == "E":
         return room_E
-    elif location == "west wing cell 1":
+    elif location == "F":
         return room_F
     elif location == "main room":
         return main_room
@@ -128,15 +127,35 @@ def get_location():
         return room_Exit
 
 
-def get_valid_item():
+"""def get_valid_item():
+    isvalid = False
+    location_items = get_location_items()
+    while not isvalid:
+        command = input("What item would you like to get? ")
+        if command.lower() == "back":
+            return "back"
+        elif command.lower() not in location_items and command.lower() not in Inventory.inventory_items:
+            print("That is not something you can obtain. Enter back to go back.")
+        elif command.lower() in location_items and command.lower() not in Inventory.possible_items:
+            print("That is not something you can pick up.")
+        else:
+            isvalid = True
+            return command.lower()"""
+
+
+def use_valid_item():
     isvalid = False
     location_items = get_location_items()
     while not isvalid:
         command = input("What item would you like to use? ")
         if command.lower() == "back":
             return "back"
-        elif command.lower() not in location_items and command.lower() not in Inventory.inventory_items:
-            print("That is not something you can use. Enter back to go back.")
+        elif Inventory.inventory_items:
+            if command.lower() not in location_items and command.lower() not in Inventory.inventory_items:
+                print("That is not something you can use. Enter back to go back.")
+            else:
+                isvalid = True
+                return command.lower()
         else:
             isvalid = True
             return command.lower()
@@ -155,17 +174,17 @@ def get_valid_command():
 
 def get_location_items():
     location =  LockedDoors.location
-    if location == "north wing cell 1":
+    if location == "A":
         return room_A_items
-    elif location == "north wing cell 2":
+    elif location == "B":
         return room_B_items
-    elif location == "east wing cell 1":
+    elif location == "C":
         return room_C_items
-    elif location == "east wing cell 2":
+    elif location == "D":
         return room_D_items
-    elif location == "west wing cell 2":
+    elif location == "E":
         return room_E_items
-    elif location == "west wing cell 1":
+    elif location == "F":
         return room_F_items
     elif location == "main room":
         return main_room_items
@@ -303,18 +322,20 @@ def get_valid_object():
     area_items = get_location_items()
     while not isvalid:
         command = input("What would you like to get? ")
-        if command.lower() not in get_location_items():
-            print("That is not an object in your immediate area. Type back to go back.")
-        elif command.lower() == "back":
+        if command.lower() == "back":
             isvalid = True
             return command.lower()
-        else:
+        elif command.lower() not in get_location_items():
+            print("That is not an object in your immediate area. Type back to go back.")
+        elif command.lower() not in Inventory.possible_items:
+            print("That is not something you can add to your inventory.")
+        elif command.lower() in Inventory.possible_items:
             isvalid = True
             return command.lower()
 
 
 print("You wake up in a cell, handcuffed to the wall.")
-while not game_over:
+while not LockedDoors.game_over:
     choice = get_valid_command()
     if choice == "see inventory":
         items = Inventory.inventory_items
@@ -325,7 +346,7 @@ while not game_over:
     elif choice == "inspect":
         inspect_item()
     elif choice == "use":
-        item = get_valid_item()
+        item = use_valid_item()
         room = get_location()
         if item != "back":
             Rooms.main_room_action(room = room, action = choice, item = item)
@@ -334,6 +355,5 @@ while not game_over:
         room = get_location()
         if item != "back":
             Rooms.main_room_action(room = room, action = choice, item = item)
-    elif choice == "move":
-        move = get_valid_move()
+
 

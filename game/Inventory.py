@@ -1,12 +1,5 @@
 inventory_items = []
-
-def get_inventory():
-    return inventory_items
-
-
-def add_item(item):
-    inventory_items.append(item)
-
-
-def remove_item(item):
-    inventory_items.pop(item)
+possible_items = [
+    "clothespin", "axe", "shank","gun","key to north wing cell 1", "two sturdy boards", "key",
+    "key to exit", "key to east wing cell 2", "key to west wing cell 1", "key to north wing cell 2"
+]
